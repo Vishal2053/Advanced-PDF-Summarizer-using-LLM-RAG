@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Query App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Upload PDF and Query</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" required>
+        <button type="submit">Upload PDF</button>
+    </form>
+    
+    <div id="upload-status"></div>
+
+    <h2>Enter your query:</h2>
+    <input type="text" id="query" placeholder="Enter query">
+    <button id="query-btn">Submit Query</button>
+    
+    <div id="query-result"></div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData();
+            let file = document.getElementById('file').files[0];
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById('upload-status').innerText = data.message || data.error;
+            });
+        });
+
+        document.getElementById('query-btn').addEventListener('click', function() {
+            let query = document.getElementById('query').value;
+
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById('query-result').innerText = data.result || data.error;
+            });
+        });
+    </script>
+</body>
+</html>
